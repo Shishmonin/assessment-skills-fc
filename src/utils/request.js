@@ -14,36 +14,34 @@ const getQueryString = (params) => {
 
 const client = axios.create({
   baseURL: API_BASE_ADDRESS,
-});
-
-client.interceptors.request.use(
-  (config) => {
-    if (!config.headers.Authorization) {
-      const token = getToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-function request(params) {
-  const method = params.method || 'GET';
-  let qs = '';
-  const headers = params.headers || {
+  headers: {
     Accept: 'application/json',
     'Content-Type': 'application/xml',
-  };
+  },
+});
 
-  if (['GET', 'DELETE', 'POST', 'PUT'].indexOf(method) > -1) qs = params.data ? `?${getQueryString(params.data)}` : '';
+// client.interceptors.request.use(
+//   (config) => {
+//     if (!config.headers.Authorization) {
+//       const token = getToken();
+//       if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//       }
+//     }
+//     return config;
+//   },
+//   (error) => Promise.reject(error),
+// );
 
-  const url = `${API_BASE_ADDRESS}${params.url}${qs}`;
-  const paramsObj = {
-    method,
-    headers,
-  };
+function request(params) {
+  console.log('params', params);
+  const method = params.method || 'GET';
+  let qs = '';
+  if (['GET', 'DELETE'].indexOf(method) > -1) qs = params.data ? `?${getQueryString(params.data)}` : '';
+  const url = `${params.url}${qs}`;
+  console.log('url', url);
+  const paramsObj;
+
   if (params.body) {
     paramsObj.body = params.body;
   }
@@ -53,8 +51,8 @@ function request(params) {
 }
 
 export default {
-  get: (url) => request({ method: 'GET' }),
-  post: (url, data) => request({ method: 'POST', data }),
-  put: (url, data) => request({ method: 'PUT', data }),
-  delete: (url, data) => request({ method: 'DELETE', data }),
+  get: (data) => request({ method: 'GET', ...data }),
+  post: (data) => request({ method: 'POST', ...data }),
+  put: (data) => request({ method: 'PUT', ...data }),
+  delete: (data) => request({ method: 'DELETE', ...data }),
 };
