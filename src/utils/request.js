@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-export const API_BASE_ADDRESS = 'http://localhost:3000/';
+export const API_BASE_ADDRESS = 'https://realtor.p.rapidapi.com/';
 
 const handleError = (error) => Promise.reject(error);
-const getToken = () => localStorage.getItem('TOKEN_KEY');
+// const getToken = () => localStorage.getItem('TOKEN_KEY');
 
 const getQueryString = (params) => {
   const esc = encodeURIComponent;
@@ -17,6 +17,8 @@ const client = axios.create({
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/xml',
+    'x-rapidapi-key': 'b419b9e988mshb5c1984b8b7e45dp1f0edbjsn3be254335a8d',
+    'x-rapidapi-host': 'realtor.p.rapidapi.com',
   },
 });
 
@@ -37,16 +39,18 @@ function request(params) {
   console.log('params', params);
   const method = params.method || 'GET';
   let qs = '';
-  if (['GET', 'DELETE'].indexOf(method) > -1) qs = params.data ? `?${getQueryString(params.data)}` : '';
+  if (['GET', 'DELETE'].indexOf(method) > -1) qs = params.data?.query ? `?${getQueryString(params.data.query)}` : '';
   const url = `${params.url}${qs}`;
-  console.log('url', url);
-  const paramsObj;
-
-  if (params.body) {
-    paramsObj.body = params.body;
+  let paramsObj = null;
+  if (params.data.body) {
+    paramsObj = params.data.body;
   }
-  return client(url, paramsObj)
-    .then((response) => response.data)
+  return client.request({
+    method,
+    url,
+    data: paramsObj,
+  })
+    .then((response) => console.log(response))
     .catch(handleError);
 }
 
